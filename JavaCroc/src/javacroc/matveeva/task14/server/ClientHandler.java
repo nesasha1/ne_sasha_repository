@@ -1,0 +1,46 @@
+package javacroc.matveeva.task14.server;
+
+import java.io.*;
+import java.net.*;
+
+class ClientHandler implements Runnable{
+    private final Socket clientSocket;
+    private final BufferedReader reader;
+    private final PrintWriter writer;
+    private String clientName;
+
+    public ClientHandler(Socket socket) throws IOException {
+
+        this.clientSocket = socket;
+        this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        this.writer = new PrintWriter(clientSocket.getOutputStream(), true);
+
+    }
+
+    @Override
+    public void run() {
+        try {
+            clientName = reader.readLine();
+            while (true) {
+                String clientMessage = reader.readLine();
+                if (clientMessage == null) {
+                    break;
+                }
+                System.out.println(clientName + ": " + clientMessage);
+                Server.broadcastMessage(clientName + ": " + clientMessage, this);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void sendMessage(String message) {
+        writer.println(message);
+    }
+}
