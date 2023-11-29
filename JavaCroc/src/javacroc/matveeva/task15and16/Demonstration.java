@@ -13,8 +13,8 @@ public class Demonstration {
 
 
             // Создаем объекты клиентов
-            Client client1 = new Client(1,"Иванов", "Иван", "123456789");
-            Client client2 = new Client(2,"Петрова", "Маша", "987654321");
+            Client client1 = new Client(15,"Иванов", "Иван", "123456789");
+            Client client2 = new Client(16,"Петрова", "Маша", "987654321");
 
 
             List<Client> petClients = new ArrayList<>();
