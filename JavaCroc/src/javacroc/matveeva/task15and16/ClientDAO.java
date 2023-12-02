@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientDAO {
     private final Connection connection;
@@ -58,7 +60,24 @@ public class ClientDAO {
             statement.executeUpdate();
         }
     }
+
+    public List<Pet> getAllPetsOf(Client client) throws SQLException {
+        List<Pet> pets = new ArrayList<>();
+        String query = "SELECT p.* FROM pets p " +
+                "JOIN clientspets cp ON p.pet_id = cp.pet_id " +
+                "WHERE cp.client_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, client.getClientId());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int petId = resultSet.getInt("pet_id");
+                String petName = resultSet.getString("pet_name");
+                int petAge = resultSet.getInt("pet_age");
+                pets.add(new Pet(petId, petName, petAge, null));
+            }
+        }
+        return pets;
+    }
+
 }
-
-
 
