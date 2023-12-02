@@ -43,7 +43,7 @@ public class PetDAO {
 
     private List<Client> retrieveClientsForPet(int petId) throws SQLException {
         String query = "SELECT c.* FROM clients c " +
-                "JOIN pet_clients pc ON c.client_id = pc.client_id " +
+                "JOIN clientspets pc ON c.client_id = pc.client_id " +
                 "WHERE pc.pet_id = ?";
         List<Client> clients = new ArrayList<>();
         try (PreparedStatement statement = connection.prepareStatement(query)) {
@@ -80,19 +80,37 @@ public class PetDAO {
     }
 
     private void insertPetClientsRelation(Pet pet) throws SQLException {
-        String query = "INSERT INTO pet_clients (pet_id, client_id) VALUES (?, ?)";
+        String query = "INSERT INTO clientspets (client_id, pet_id) VALUES (?, ?)";
         List<Client> clients = pet.getClients();
         if (clients != null) {
             for (Client client : clients) {
                 try (PreparedStatement statement = connection.prepareStatement(query)) {
-                    statement.setInt(1, pet.getPetId());
-                    statement.setObject(2, client.getClientId());
+                    statement.setObject(1, client.getClientId());
+                    statement.setInt(2, pet.getPetId());
                     statement.executeUpdate();
                 }
             }
         }
     }
-}
 
+    public List<String> findClientPhoneNumbersBy(Pet pet) throws SQLException {
+        List<String> phoneNumbers = new ArrayList<>();
+        String query = "SELECT c.phone_number " +
+                "FROM clients c " +
+                "JOIN clientspets cp ON c.client_id = cp.client_id " +
+                "WHERE cp.pet_id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, pet.getPetId());
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                String phoneNumber = resultSet.getString("phone_number");
+                phoneNumbers.add(phoneNumber);
+            }
+        }
+        return phoneNumbers;
+    }
+
+
+}
 
 
