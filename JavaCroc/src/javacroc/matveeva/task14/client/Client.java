@@ -9,13 +9,12 @@ public class Client {
     private static final int SERVER_PORT = 5555;
 
     public static void main(String[] args) {
-        try {
-            Socket socket = new Socket(SERVER_IP, SERVER_PORT);
-            System.out.println("Connected to server.");
+        try (Socket socket = new Socket(SERVER_IP, SERVER_PORT);
+             BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
 
-            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-            BufferedReader serverReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("Connected to server.");
 
             System.out.print("Enter your nickname: ");
             String nickname = consoleReader.readLine();
@@ -28,22 +27,21 @@ public class Client {
                         System.out.println(serverMessage);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    System.err.println("Error: " + e.getMessage());
                 }
             });
             readerThread.start();
 
             String message;
+
             while (true) {
                 message = consoleReader.readLine();
                 writer.println(message);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error: " + e.getMessage());
         }
     }
-
-
 }
 
 
