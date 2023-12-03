@@ -7,7 +7,6 @@ class ClientHandler implements Runnable{
     private final Socket clientSocket;
     private final BufferedReader reader;
     private final PrintWriter writer;
-    private String clientName;
 
     public ClientHandler(Socket socket) throws IOException {
 
@@ -20,7 +19,7 @@ class ClientHandler implements Runnable{
     @Override
     public void run() {
         try {
-            clientName = reader.readLine();
+            String clientName = reader.readLine();
             while (true) {
                 String clientMessage = reader.readLine();
                 if (clientMessage == null) {
@@ -30,14 +29,18 @@ class ClientHandler implements Runnable{
                 Server.broadcastMessage(clientName + ": " + clientMessage, this);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Client disconnected: " + e.getMessage());
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println("Error: " + e.getMessage());
             }
         }
+    }
+
+    public boolean isClientConnected() {
+        return !clientSocket.isClosed();
     }
 
     public void sendMessage(String message) {
