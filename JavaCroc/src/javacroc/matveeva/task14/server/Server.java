@@ -18,17 +18,20 @@ public class Server {
                 ClientHandler clientHandler = new ClientHandler(clientSocket);
                 clients.add(clientHandler);
                 new Thread(clientHandler).start();
-
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error: " + e.getMessage());
         }
     }
 
-    static void broadcastMessage(String message, ClientHandler sender) {
-        for (ClientHandler client : clients) {
+    synchronized static void broadcastMessage(String message, ClientHandler sender) {
+        Iterator<ClientHandler> iterator = clients.iterator();
+        while (iterator.hasNext()) {
+            ClientHandler client = iterator.next();
             if (client != sender) {
                 client.sendMessage(message);
+            } else if (!client.isClientConnected()) {
+                iterator.remove(); // Удаляем отключенного клиента из списка
             }
         }
     }
